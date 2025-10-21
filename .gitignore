@@ -1,2 +1,5 @@
 /subprojects/.wraplock
 /subprojects/packagecache
+
+#Its a wrap so i really dont need to add that
+/subprojects/glfw-3.4
