@@ -7,6 +7,7 @@ project(
 inc = include_directories('include')
 
 glfw_dep = dependency('glfw3', required: true, static: true)
+glew_dep = dependency('glew', required: true, static: true)
 
 link_args = ['-lopengl32']
 
@@ -14,6 +15,6 @@ executable(
     'release/Engine', 
     'src/main.cpp', 
     include_directories: [inc],
-    dependencies: [glfw_dep],
+    dependencies: [glfw_dep, glew_dep],
     link_args: link_args
 )

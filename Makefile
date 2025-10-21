@@ -1,19 +1,26 @@
 .NOTPARALLEL: rebuild
+.PHONY: build compile
 
-run: build
-	cd build/release && Engine.exe
+run: compile
+	@cd build/release && Engine.exe
+
+buildRun: build
+	@cd build/release && Engine.exe
 
 cleanRun: rebuild
-	@echo "Running"
-	cd build/release && Engine.exe
+	@echo Running
+	@cd build/release && Engine.exe
 
 rebuild: clean build
 
 build: 
-	@echo "Building"
+	@echo Building
 	@meson setup build --reconfigure
+	@cd build && meson compile
+
+compile: 
 	@cd build && meson compile
 	
 clean:
-	@echo "Cleaning"
+	@echo Cleaning
 	@if exist build rmdir /s /q build
