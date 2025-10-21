@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -9,11 +9,9 @@ int main(void)
 {
     GLFWwindow *window;
 
-    /* Initialize the library */
     if (!glfwInit())
         return -1;
 
-    /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(640, 480, "Hello xx", NULL, NULL);
 
     if (!window)
@@ -25,16 +23,34 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
-    if (glewInit() != GLEW_OK)
+    int version = gladLoadGL();
+    if (version == 0)
     {
-        cout << "Error!" << endl;
+        std::cout << "Failed to initialize OpenGL context" << std::endl;
+        return -1;
     }
 
-    /* Loop until the user closes the window */
+    cout << glGetString(GL_VERSION) << endl;
+
+    float positions[6] = {
+        -0.5f, -0.5f,
+        0.0f, 0.5f,
+        0.5f, -0.5f};
+
+    unsigned int buffer;
+    // Create buffer returns the id and assings it to buffer
+    glGenBuffers(1, &buffer);
+    // Purpose of buffer array here
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    // Add data in there
+    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
