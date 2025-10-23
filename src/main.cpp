@@ -2,78 +2,22 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-#include <fstream>
-#include <sstream>
+#include "Shader.h"
 
 using namespace std;
 
-static void GLClearError() {
-    while (glGetError() != GL_NO_ERROR);
+static void GLClearError()
+{
+    while (glGetError() != GL_NO_ERROR)
+        ;
 }
 
-static void GLCheckError() {
-    while (GLenum error = glGetError()) {
+static void GLCheckError()
+{
+    while (GLenum error = glGetError())
+    {
         cout << "[OpenGL Error] (" << error << ")" << endl;
     }
-}
-
-static string ParseShader(const string &filepath)
-{
-    ifstream file(filepath);
-    if (!file)
-    {
-        cout << "Error opening file!" << endl;
-    }
-
-    stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-
-static unsigned int CompileShader(unsigned int type, const string &soruce)
-{
-    unsigned int id = glCreateShader(type);
-    const char *src = soruce.c_str();
-
-    glShaderSource(id, 1, &src, nullptr);
-    glCompileShader(id);
-
-    int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-
-    if (!result)
-    {
-        int length;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char *message = (char *)alloca(length * sizeof(char));
-
-        glGetShaderInfoLog(id, length, &length, message);
-
-        cout << "Failed to compile  " << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment") << "shader!" << endl;
-        cout << message << endl;
-
-        glDeleteShader(id);
-    }
-
-    return id;
-}
-
-static unsigned int CreateShader(const string &vertexShader, const string &fragmentShader)
-{
-    unsigned int program = glCreateProgram();
-    unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
-    unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
-
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-
-    glLinkProgram(program);
-    glValidateProgram(program);
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    return program;
 }
 
 int main(void)
@@ -104,16 +48,19 @@ int main(void)
     cout << glGetString(GL_VERSION) << endl;
 
     float positions[] = {
-        -0.5f,-0.5f, // 0
-         0.5f,-0.5f, // 1
-         0.5f, 0.5f, // 2
-        -0.5f, 0.5f, // 3
+        -0.5f,
+        -0.5f, // 0
+        0.5f,
+        -0.5f, // 1
+        0.5f,
+        0.5f, // 2
+        -0.5f,
+        0.5f, // 3
     };
 
     unsigned int indices[] = {
         0, 1, 2,
-        2, 3, 0
-    };
+        2, 3, 0};
 
     unsigned int buffer;
     // Create buffer returns the id and assings it to buffer
@@ -134,14 +81,8 @@ int main(void)
     // puts index data in there
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    string vertexShader = ParseShader("./shaders/vertex.shader");
-    string fragmentShader = ParseShader("./shaders/fragment.shader");
-
-    unsigned int shader = CreateShader(vertexShader, fragmentShader);
-    glUseProgram(shader);
-
-    int location = glGetUniformLocation(shader, "u_Color");
-    glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f);
+    Shader shader = Shader("./shaders/vertex.shader", "./shaders/fragment.shader");
+    shader.SetUnifrom1i("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -159,8 +100,6 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
     }
-
-    glDeleteProgram(shader);
 
     glfwTerminate();
     return 0;

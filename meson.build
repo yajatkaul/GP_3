@@ -6,6 +6,8 @@ project(
 
 inc = include_directories('include')
 
+src = ['src/main.cpp', 'src/Shader.cpp', 'src/Renderer.cpp']
+
 glfw_dep = dependency('glfw3', required: true, static: true)
 glad_dep = subproject('glad').get_variable('glad_dep')
 
@@ -13,7 +15,7 @@ link_args = ['-lopengl32']
 
 executable(
     'release/Engine', 
-    'src/main.cpp', 
+    src, 
     include_directories: [inc],
     dependencies: [glfw_dep, glad_dep],
     link_args: link_args
