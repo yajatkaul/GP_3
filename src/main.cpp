@@ -3,6 +3,12 @@
 
 #include <iostream>
 #include "Shader.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
 
@@ -47,52 +53,113 @@ int main(void)
 
     cout << glGetString(GL_VERSION) << endl;
 
+    // Square
     float positions[] = {
-        -0.5f,
-        -0.5f, // 0
-        0.5f,
-        -0.5f, // 1
-        0.5f,
-        0.5f, // 2
-        -0.5f,
-        0.5f, // 3
-    };
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
 
-    unsigned int indices[] = {
-        0, 1, 2,
-        2, 3, 0};
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
 
-    unsigned int buffer;
-    // Create buffer returns the id and assings it to buffer
-    glGenBuffers(1, &buffer);
-    // Bind current array buffer array here
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    // Add data in there
-    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
+
+    // unsigned int indices[] = {
+    //     0, 1, 2,
+    //     2, 3, 0};
+
+    // Triangle
+    //  float positions[] = {
+    //      -0.5f, -0.5f, // Vertex 0
+    //      0.5f, -0.5f,  // Vertex 1
+    //      0.0f, 0.5f    // Vertex 2 (top)
+    //  };
+
+    // unsigned int indices[] = {
+    //     0, 1, 2 // single triangle
+    // };
+
+    VertexBuffer vb = VertexBuffer(positions, sizeof(positions));
+    vb.Bind();
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void *)0);
     glEnableVertexAttribArray(0);
 
-    unsigned int ibo;
-    // this time creates an index buffer
-    glGenBuffers(1, &ibo);
-    // binds a current array buffer here
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    // puts index data in there
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    // IndexBuffer ib = IndexBuffer(indices, sizeof(indices));
+    // ib.Bind();
 
     Shader shader = Shader("./shaders/vertex.shader", "./shaders/fragment.shader");
     shader.SetUnifrom1i("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
 
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+
+    glm::mat4 view = glm::mat4(1.0f);
+    // note that we're translating the scene in the reverse direction of where we want to move
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+    glm::mat4 projection;
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+    shader.SetUnifromMatrix4fv("view", 1, false, glm::value_ptr(view));
+    shader.SetUnifromMatrix4fv("projection", 1, false, glm::value_ptr(projection));
+    shader.SetUnifromMatrix4fv("model", 1, false, glm::value_ptr(model));
+
+    float lastFrame = 0.0f;
+
     while (!glfwWindowShouldClose(window))
     {
+        float currentFrame = glfwGetTime();
+        float deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glEnable(GL_DEPTH_TEST);
 
         GLClearError();
         // From the index buffer gets the position data and draws them
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
         GLCheckError();
+
+        model = glm::rotate(model, glm::radians(50.0f) * deltaTime, glm::vec3(0.5f, 1.0f, 0.0f));
+        shader.SetUnifromMatrix4fv("model", 1, false, glm::value_ptr(model));
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

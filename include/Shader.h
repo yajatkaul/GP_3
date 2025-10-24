@@ -17,12 +17,13 @@ private:
     unsigned int CreateShader(const string &vertexShader, const string &fragmentShader);
     string ParseShader(const string &filepath);
     unsigned int CompileShader(unsigned int type, const string &soruce);
-    unsigned int m_RendererID;
-    int GetUnifromLocation(const std::string &name);
-    std::unordered_map<std::string, int> m_UniformLocationCache;
+    int GetUnifromLocation(const string &name);
+    unordered_map<string, int> m_UniformLocationCache;
 
 public:
-    Shader(const std::string &vertexPath, const std::string &fragmentPath);
+    Shader(const string &vertexPath, const string &fragmentPath);
     ~Shader();
-    void SetUnifrom1i(const std::string &name, float v0, float v1, float v2, float v3);
+    void SetUnifrom1i(const string &name, float v0, float v1, float v2, float v3);
+    void SetUnifromMatrix4fv(const string &name, int count, bool transpose, float *value);
+    unsigned int m_RendererID;
 };

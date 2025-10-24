@@ -84,6 +84,11 @@ void Shader::SetUnifrom1i(const std::string &name, float v0, float v1, float v2,
     glUniform4f(GetUnifromLocation(name), v0, v1, v2, v3);
 }
 
+void Shader::SetUnifromMatrix4fv(const string &name, int count, bool transpose, float *value)
+{
+    glUniformMatrix4fv(GetUnifromLocation(name), count, transpose, value);
+}
+
 int Shader::GetUnifromLocation(const std::string &name)
 {
     if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
