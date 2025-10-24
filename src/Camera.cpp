@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include <iostream>
 
 Camera::Camera(SDL_Window *window)
 {
@@ -65,10 +66,9 @@ void Camera::scroll_callback(double xoffset, double yoffset)
         fov = 45.0f;
 }
 
-void Camera::processInput(SDL_Event event)
+void Camera::keyboard_callback(const Uint8 *state, float deltaTime)
 {
-    const float cameraSpeed = 0.05f;
-    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    const float cameraSpeed = 2.0f * deltaTime;
 
     if (state[SDL_SCANCODE_W])
         cameraPos += cameraSpeed * cameraFront;
@@ -78,13 +78,31 @@ void Camera::processInput(SDL_Event event)
         cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     if (state[SDL_SCANCODE_D])
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+}
 
+void Camera::processInput(SDL_Event event, float deltaTime)
+{
     if (event.type == SDL_MOUSEMOTION)
     {
         float xpos = (float)event.motion.x;
         float ypos = (float)event.motion.y;
 
         mouse_callback(xpos, ypos);
+    }
+
+    if (event.type == SDL_MOUSEWHEEL)
+    {
+        double xoffset = event.motion.xrel;
+        double yoffset = event.motion.yrel;
+
+        scroll_callback(xoffset, yoffset);
+    }
+
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+    if (state != NULL)
+    {
+        keyboard_callback(state, deltaTime);
     }
 }
 

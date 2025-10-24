@@ -164,15 +164,21 @@ int main(int argc, char *argv[])
 
     glEnable(GL_DEPTH_TEST);
 
+    float lastFrame = 0.0f;
+
     while (running)
     {
+        float currentFrame = SDL_GetTicks() / 1000.0f; // seconds
+        float deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
             {
                 running = false;
             }
-            camera.processInput(event);
+            camera.processInput(event, deltaTime);
         }
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -187,7 +193,7 @@ int main(int argc, char *argv[])
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i;
-            model = glm::rotate(model, (float)SDL_GetTicks() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            model = glm::rotate(model, currentFrame * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             shader.SetUnifromMatrix4fv("model", 1, false, glm::value_ptr(model));
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
