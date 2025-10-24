@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "Camera.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -33,6 +34,10 @@ int main(void)
     if (!glfwInit())
         return -1;
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     window = glfwCreateWindow(640, 480, "Hello xx", NULL, NULL);
 
     if (!window)
@@ -41,8 +46,10 @@ int main(void)
         return -1;
     }
 
-    /* Make the window's context current */
     glfwMakeContextCurrent(window);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    Camera camera = Camera(window);
 
     int version = gladLoadGL();
     if (version == 0)
@@ -53,7 +60,7 @@ int main(void)
 
     cout << glGetString(GL_VERSION) << endl;
 
-    // Square
+    // Cube
     float positions[] = {
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
         0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
@@ -97,20 +104,9 @@ int main(void)
         -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
         -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
 
-    // unsigned int indices[] = {
-    //     0, 1, 2,
-    //     2, 3, 0};
-
-    // Triangle
-    //  float positions[] = {
-    //      -0.5f, -0.5f, // Vertex 0
-    //      0.5f, -0.5f,  // Vertex 1
-    //      0.0f, 0.5f    // Vertex 2 (top)
-    //  };
-
-    // unsigned int indices[] = {
-    //     0, 1, 2 // single triangle
-    // };
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
 
     VertexBuffer vb = VertexBuffer(positions, sizeof(positions));
     vb.Bind();
@@ -134,37 +130,63 @@ int main(void)
     glm::mat4 projection;
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    shader.SetUnifromMatrix4fv("view", 1, false, glm::value_ptr(view));
+    float lastFrame = 0.0f;
+
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)};
+
     shader.SetUnifromMatrix4fv("projection", 1, false, glm::value_ptr(projection));
     shader.SetUnifromMatrix4fv("model", 1, false, glm::value_ptr(model));
 
-    float lastFrame = 0.0f;
-
     while (!glfwWindowShouldClose(window))
     {
+        camera.processInput(window);
+
         float currentFrame = glfwGetTime();
         float deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GLClearError();
 
         glEnable(GL_DEPTH_TEST);
 
-        GLClearError();
         // From the index buffer gets the position data and draws them
-        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (unsigned int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            shader.SetUnifromMatrix4fv("model", 1, false, glm::value_ptr(model));
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+        view = camera.GetView();
+        projection = glm::perspective(glm::radians(camera.fov), 800.0f / 600.0f, 0.1f, 100.0f);
+
+        shader.SetUnifromMatrix4fv("view", 1, false, glm::value_ptr(view));
+        shader.SetUnifromMatrix4fv("projection", 1, false, glm::value_ptr(projection));
 
         GLCheckError();
 
-        model = glm::rotate(model, glm::radians(50.0f) * deltaTime, glm::vec3(0.5f, 1.0f, 0.0f));
-        shader.SetUnifromMatrix4fv("model", 1, false, glm::value_ptr(model));
+        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-        /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
-        /* Poll for and process events */
         glfwPollEvents();
     }
 

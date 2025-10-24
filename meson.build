@@ -6,7 +6,7 @@ project(
 
 inc = include_directories('include')
 
-src = ['src/main.cpp', 'src/Shader.cpp', 'src/Renderer.cpp','src/VertexBuffer.cpp','src/IndexBuffer.cpp']
+src = ['src/main.cpp', 'src/Shader.cpp', 'src/Renderer.cpp','src/VertexBuffer.cpp','src/IndexBuffer.cpp', 'src/Camera.cpp']
 
 glfw_dep = dependency('glfw3', required: true, static: true)
 glad_dep = subproject('glad').get_variable('glad_dep')
