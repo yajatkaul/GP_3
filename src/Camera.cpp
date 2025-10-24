@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-Camera::Camera(GLFWwindow *window)
+Camera::Camera(SDL_Window *window)
 {
     // camera
     cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -14,13 +14,16 @@ Camera::Camera(GLFWwindow *window)
     lastY = 600.0f / 2.0f;
     firstMouse = true;
     fov = 45.0f;
+
+    // glfwSetCursorPosCallback(window, mouse_callback);
+    // glfwSetScrollCallback(window, scroll_callback);
 }
 
 Camera::~Camera()
 {
 }
 
-void Camera::mouse_callback(GLFWwindow *window, double xpos, double ypos)
+void Camera::mouse_callback(double xpos, double ypos)
 {
     if (firstMouse)
     {
@@ -53,7 +56,7 @@ void Camera::mouse_callback(GLFWwindow *window, double xpos, double ypos)
     cameraFront = glm::normalize(direction);
 }
 
-void Camera::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+void Camera::scroll_callback(double xoffset, double yoffset)
 {
     fov -= (float)yoffset;
     if (fov < 1.0f)
@@ -62,17 +65,27 @@ void Camera::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
         fov = 45.0f;
 }
 
-void Camera::processInput(GLFWwindow *window)
+void Camera::processInput(SDL_Event event)
 {
     const float cameraSpeed = 0.05f;
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+    if (state[SDL_SCANCODE_W])
         cameraPos += cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (state[SDL_SCANCODE_S])
         cameraPos -= cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    if (state[SDL_SCANCODE_A])
         cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    if (state[SDL_SCANCODE_D])
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
+    if (event.type == SDL_MOUSEMOTION)
+    {
+        float xpos = (float)event.motion.x;
+        float ypos = (float)event.motion.y;
+
+        mouse_callback(xpos, ypos);
+    }
 }
 
 glm::mat4 Camera::GetView()

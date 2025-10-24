@@ -14,13 +14,13 @@ private:
     float lastX;
     float lastY;
     bool firstMouse;
+    void mouse_callback(double xpos, double ypos);
+    void scroll_callback(double xoffset, double yoffset);
 
 public:
-    Camera(GLFWwindow *window);
+    Camera(SDL_Window *window);
     ~Camera();
-    void mouse_callback(GLFWwindow *window, double xpos, double ypos);
-    void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-    void processInput(GLFWwindow *window);
+    void processInput(SDL_Event event);
     glm::mat4 GetView();
     float fov;
 };
