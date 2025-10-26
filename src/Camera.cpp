@@ -24,26 +24,14 @@ Camera::~Camera()
 {
 }
 
-void Camera::mouse_callback(double xpos, double ypos)
+void Camera::mouse_callback(double xoffset, double yoffset)
 {
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
-    lastX = xpos;
-    lastY = ypos;
-
-    float sensitivity = 0.1f;
+    const float sensitivity = 0.1f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
     yaw += xoffset;
-    pitch += yoffset;
+    pitch -= yoffset; // invert so moving mouse up looks up
 
     if (pitch > 89.0f)
         pitch = 89.0f;
@@ -66,9 +54,10 @@ void Camera::scroll_callback(double xoffset, double yoffset)
         fov = 45.0f;
 }
 
-void Camera::keyboard_callback(const Uint8 *state, float deltaTime)
+void Camera::keyboard_callback(float deltaTime)
 {
     const float cameraSpeed = 2.0f * deltaTime;
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
 
     if (state[SDL_SCANCODE_W])
         cameraPos += cameraSpeed * cameraFront;
@@ -84,25 +73,18 @@ void Camera::processInput(SDL_Event event, float deltaTime)
 {
     if (event.type == SDL_MOUSEMOTION)
     {
-        float xpos = (float)event.motion.x;
-        float ypos = (float)event.motion.y;
+        float xpos = (float)event.motion.xrel;
+        float ypos = (float)event.motion.yrel;
 
         mouse_callback(xpos, ypos);
     }
 
     if (event.type == SDL_MOUSEWHEEL)
     {
-        double xoffset = event.motion.xrel;
-        double yoffset = event.motion.yrel;
+        double xoffset = event.wheel.x;
+        double yoffset = event.wheel.y;
 
         scroll_callback(xoffset, yoffset);
-    }
-
-    const Uint8 *state = SDL_GetKeyboardState(NULL);
-
-    if (state != NULL)
-    {
-        keyboard_callback(state, deltaTime);
     }
 }
 

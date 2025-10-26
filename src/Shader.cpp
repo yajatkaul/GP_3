@@ -79,7 +79,7 @@ unsigned int Shader::CreateShader(const string &vertexShader, const string &frag
     return program;
 }
 
-void Shader::SetUnifrom1i(const std::string &name, float v0, float v1, float v2, float v3)
+void Shader::SetUnifrom1f(const std::string &name, float v0, float v1, float v2, float v3)
 {
     glUniform4f(GetUnifromLocation(name), v0, v1, v2, v3);
 }

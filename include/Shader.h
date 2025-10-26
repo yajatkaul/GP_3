@@ -23,7 +23,7 @@ private:
 public:
     Shader(const string &vertexPath, const string &fragmentPath);
     ~Shader();
-    void SetUnifrom1i(const string &name, float v0, float v1, float v2, float v3);
+    void SetUnifrom1f(const string &name, float v0, float v1, float v2, float v3);
     void SetUnifromMatrix4fv(const string &name, int count, bool transpose, float *value);
     unsigned int m_RendererID;
 };

@@ -6,5 +6,6 @@
 /subprojects/glew-2.2.0
 /subprojects/glm-1.0.1
 /subprojects/SDL2-2.32.8
+/subprojects/SDL3-3.2.10
 
 .vscode

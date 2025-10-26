@@ -16,7 +16,6 @@ private:
     bool firstMouse;
     void mouse_callback(double xpos, double ypos);
     void scroll_callback(double xoffset, double yoffset);
-    void keyboard_callback(const Uint8 *state, float deltaTime);
 
 public:
     Camera(SDL_Window *window);
@@ -24,4 +23,5 @@ public:
     void processInput(SDL_Event event, float deltaTime);
     glm::mat4 GetView();
     float fov;
+    void keyboard_callback(float deltaTime);
 };
