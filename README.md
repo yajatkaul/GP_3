@@ -1,4 +1,4 @@
-# ⚙️ gp_3
+# ⚙️ GP_3
 
 A C-based project focused on low-level programming, efficient execution, and core system design principles.
 
